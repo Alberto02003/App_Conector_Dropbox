@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Backend Flask
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: conector_dropbox_backend
+    ports:
+      - "5000:5000"       # Puerto principal (http://conector_dropbox:5000)
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+      - DROPBOX_APP_KEY=${DROPBOX_APP_KEY}
+      - DROPBOX_APP_SECRET=${DROPBOX_APP_SECRET}
+      - DROPBOX_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
+      - DROPBOX_REDIRECT_URI=http://conector_dropbox:5000/api/auth/callback
+      - SECRET_KEY=${SECRET_KEY:-default_secret_key_change_in_production}
+      - FLASK_HOST=conector_dropbox
+      - FLASK_PORT=5000
+    volumes:
+      - ./backend/sessions.json:/app/sessions.json
+      - backend_data:/app/data
+    networks:
+      - dropbox_network
+    restart: unless-stopped
+    extra_hosts:
+      - "conector_dropbox:host-gateway"  # Permite resolver conector_dropbox dentro del contenedor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/auth/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend React/Vite con Nginx
+  frontend:
+    build:
+      context: ./App_Dropbox
+      dockerfile: Dockerfile
+    container_name: conector_dropbox_frontend
+    ports:
+      - "80:80"           # Puerto principal (http://conector_dropbox)
+      - "5173:80"         # Puerto alternativo (http://conector_dropbox:5173)
+      - "3000:80"         # Puerto adicional (http://conector_dropbox:3000)
+    environment:
+      - NGINX_HOST=conector_dropbox
+      - API_URL=http://conector_dropbox:5000/api
+    depends_on:
+      - backend
+    networks:
+      - dropbox_network
+    restart: unless-stopped
+    extra_hosts:
+      - "conector_dropbox:host-gateway"  # Permite resolver conector_dropbox dentro del contenedor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  backend_data:
+    driver: local
+
+networks:
+  dropbox_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
