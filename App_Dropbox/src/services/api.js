@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+// Usar siempre la URL accesible desde el navegador
+const API_URL = '/api';
 
 export const api = {
   checkAuthStatus: async () => {

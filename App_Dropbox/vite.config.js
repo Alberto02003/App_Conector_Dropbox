@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   base: './',
   server: {
-    host: 'conector_dropbox',
+    host: true, // Permite conexiones desde cualquier IP
     port: 5173,
     strictPort: true,
     open: false

@@ -18,14 +18,8 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
-CORS(app, supports_credentials=True, origins=[
-    "http://localhost:3000",
-    "http://localhost:5173", 
-    "http://localhost:5174",
-    "http://localhost:80",
-    "http://conector_dropbox:5173",
-    "http://conector_dropbox:5174"
-])
+# Configuración CORS más permisiva para desarrollo
+CORS(app, supports_credentials=True, origins=["*"], allow_headers="*", expose_headers="*", methods="*")
 
 # Configuración de Dropbox
 DROPBOX_APP_KEY = os.getenv('DROPBOX_APP_KEY')
@@ -34,6 +28,21 @@ DROPBOX_REDIRECT_URI = os.getenv('DROPBOX_REDIRECT_URI', 'http://conector_dropbo
 DROPBOX_ACCESS_TOKEN = os.getenv('DROPBOX_ACCESS_TOKEN')
 
 # Usamos la función get_dropbox_client de dropbox_auth.py
+
+# Ruta de prueba para verificar que el servidor está funcionando
+@app.route('/')
+def index():
+    return jsonify({"status": "API running"})
+
+# Ruta alternativa para verificar el estado
+@app.route('/status')
+def status():
+    return jsonify({"status": "API running"})
+    
+# Ruta para verificar el estado sin prefijo api
+@app.route('/auth/status')
+def auth_status_alt():
+    return auth_status()
 
 @app.route('/api/auth/status')
 def auth_status():
