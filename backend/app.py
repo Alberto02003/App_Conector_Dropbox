@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, redirect, session, url_for
-from werkzeug.urls import url_quote
+from urllib.parse import quote as url_quote
 from flask_cors import CORS
 import os
 import dropbox
@@ -19,8 +19,10 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 CORS(app, supports_credentials=True, origins=[
+    "http://localhost:3000",
     "http://localhost:5173", 
     "http://localhost:5174",
+    "http://localhost:80",
     "http://conector_dropbox:5173",
     "http://conector_dropbox:5174"
 ])
@@ -239,4 +241,4 @@ def upload_file_to_root():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='conector_dropbox', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)

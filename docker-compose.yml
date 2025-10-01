@@ -9,15 +9,14 @@ services:
     container_name: conector_dropbox_backend
     ports:
       - "5000:5000"       # Puerto principal (http://conector_dropbox:5000)
+    env_file:
+      - ./backend/.env
     environment:
       - FLASK_ENV=production
       - FLASK_APP=app.py
-      - DROPBOX_APP_KEY=${DROPBOX_APP_KEY}
-      - DROPBOX_APP_SECRET=${DROPBOX_APP_SECRET}
-      - DROPBOX_ACCESS_TOKEN=${DROPBOX_ACCESS_TOKEN}
-      - DROPBOX_REDIRECT_URI=http://conector_dropbox:5000/api/auth/callback
-      - SECRET_KEY=${SECRET_KEY:-default_secret_key_change_in_production}
-      - FLASK_HOST=conector_dropbox
+      - DROPBOX_REDIRECT_URI=http://localhost:5000/api/auth/callback
+      - SECRET_KEY=default_secret_key_change_in_production
+      - FLASK_HOST=0.0.0.0
       - FLASK_PORT=5000
     volumes:
       - ./backend/sessions.json:/app/sessions.json

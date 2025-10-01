@@ -1,7 +1,7 @@
 # Dockerfile para Frontend React/Vite - Conector Dropbox
 
 # Etapa 1: Build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Establecer directorio de trabajo
 WORKDIR /app
@@ -9,8 +9,8 @@ WORKDIR /app
 # Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm ci --only=production
+# Instalar dependencias (incluyendo devDependencies para el build)
+RUN npm ci
 
 # Copiar código fuente
 COPY . .
