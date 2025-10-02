@@ -18,6 +18,8 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
+# Configuración del límite de tamaño de archivos (100MB)
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 # Configuración CORS más permisiva para desarrollo
 CORS(app, supports_credentials=True, origins=["*"], allow_headers="*", expose_headers="*", methods="*")
 

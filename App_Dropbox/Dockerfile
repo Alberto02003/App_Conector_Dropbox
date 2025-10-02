@@ -33,6 +33,10 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
+# Configurar permisos adecuados
+RUN chown -R nextjs:nodejs /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
+
 # Exponer puerto
 EXPOSE 80
 

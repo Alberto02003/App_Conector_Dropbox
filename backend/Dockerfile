@@ -33,11 +33,11 @@ EXPOSE 5000
 
 # Variables de entorno por defecto
 ENV FLASK_APP=app.py
-ENV FLASK_ENV=development
-ENV FLASK_DEBUG=1
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=0
 ENV FLASK_HOST=0.0.0.0
 ENV FLASK_PORT=5000
 ENV PYTHONPATH=/app
 
-# Comando de inicio con Python directamente
-CMD ["python", "app.py"]
+# Comando de inicio con Gunicorn para producción
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "app:app"]
