@@ -1,0 +1,53 @@
+{
+  "name": "Proyecto Principal",
+  "folders": [
+    {
+      "name": "Documentos",
+      "folders": [
+        {
+          "name": "Contratos",
+          "folders": []
+        },
+        {
+          "name": "Facturas",
+          "folders": []
+        },
+        {
+          "name": "Reportes",
+          "folders": []
+        }
+      ]
+    },
+    {
+      "name": "Recursos",
+      "folders": [
+        {
+          "name": "Imágenes",
+          "folders": []
+        },
+        {
+          "name": "Videos",
+          "folders": []
+        }
+      ]
+    },
+    {
+      "name": "Backups",
+      "folders": [
+        {
+          "name": "2025",
+          "folders": [
+            {
+              "name": "Enero",
+              "folders": []
+            },
+            {
+              "name": "Febrero",
+              "folders": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

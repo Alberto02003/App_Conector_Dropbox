@@ -214,39 +214,119 @@ def upload_file_to_root():
     try:
         if 'file' not in request.files:
             return jsonify({"error": "No se ha enviado ningún archivo"}), 400
-        
+
         file = request.files['file']
-        
+
         if not file or file.filename == '':
             return jsonify({"error": "No se ha seleccionado ningún archivo"}), 400
-        
+
         # Usar el nombre original del archivo
         filename = file.filename
-        
+
         # Guardar archivo temporalmente
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         file.save(temp_file.name)
         temp_file.close()
-        
+
         # Subir a Dropbox en el directorio raíz
         dbx = get_dropbox_client()
         if not dbx:
             os.unlink(temp_file.name)
             return jsonify({"error": "Error de autenticación con Dropbox"}), 401
-        
+
         dropbox_path = f"/{filename}"
-        
+
         with open(temp_file.name, 'rb') as f:
             dbx.files_upload(f.read(), dropbox_path, mode=dropbox.files.WriteMode.overwrite)
-        
+
         # Eliminar archivo temporal
         os.unlink(temp_file.name)
-        
+
         return jsonify({
             "success": True,
             "message": "Archivo subido correctamente al directorio raíz",
             "filename": filename,
             "path": dropbox_path
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/structure/create', methods=['POST'])
+def create_structure_from_json():
+    """
+    Crea una estructura de carpetas en Dropbox a partir de un archivo JSON.
+    El JSON debe tener el formato:
+    {
+        "name": "Nombre de la carpeta raíz",
+        "folders": [
+            {"name": "Subcarpeta1", "folders": []},
+            {"name": "Subcarpeta2", "folders": [...]}
+        ]
+    }
+    """
+    try:
+        if 'file' not in request.files:
+            return jsonify({"error": "No se ha enviado ningún archivo JSON"}), 400
+
+        file = request.files['file']
+
+        if not file or file.filename == '':
+            return jsonify({"error": "No se ha seleccionado ningún archivo"}), 400
+
+        # Verificar que sea un archivo JSON
+        if not file.filename.endswith('.json'):
+            return jsonify({"error": "El archivo debe ser un JSON"}), 400
+
+        # Leer y parsear el JSON
+        try:
+            structure_data = json.load(file)
+        except json.JSONDecodeError:
+            return jsonify({"error": "El archivo JSON no tiene un formato válido"}), 400
+
+        # Validar estructura básica
+        if 'name' not in structure_data:
+            return jsonify({"error": "El JSON debe tener un campo 'name' para la carpeta raíz"}), 400
+
+        # Obtener cliente de Dropbox
+        dbx = get_dropbox_client()
+        if not dbx:
+            return jsonify({"error": "Error de autenticación con Dropbox"}), 401
+
+        # Crear la estructura
+        created_folders = []
+        errors = []
+
+        def create_folders_recursive(structure, parent_path=""):
+            """Función recursiva para crear carpetas"""
+            # Crear carpeta actual
+            current_path = f"{parent_path}/{structure['name']}"
+
+            try:
+                # Verificar si la carpeta ya existe
+                try:
+                    dbx.files_get_metadata(current_path)
+                    # Si existe, no hacer nada
+                except:
+                    # Si no existe, crearla
+                    dbx.files_create_folder_v2(current_path)
+                    created_folders.append(current_path)
+            except Exception as e:
+                errors.append(f"Error creando carpeta {current_path}: {str(e)}")
+
+            # Crear subcarpetas recursivamente
+            if 'folders' in structure and structure['folders']:
+                for subfolder in structure['folders']:
+                    create_folders_recursive(subfolder, current_path)
+
+        # Crear la estructura comenzando desde la raíz
+        create_folders_recursive(structure_data)
+
+        return jsonify({
+            "success": True,
+            "message": f"Estructura creada correctamente: {len(created_folders)} carpetas",
+            "created_folders": created_folders,
+            "total_folders": len(created_folders),
+            "errors": errors if errors else None
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

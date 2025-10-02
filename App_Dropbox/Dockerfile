@@ -11,8 +11,6 @@ COPY package*.json ./
 
 # Instalar dependencias (incluyendo devDependencies para el build)
 RUN npm ci
-# Instalar vite y otras dependencias globalmente para asegurar que estén disponibles
-RUN npm install -g vite @vitejs/plugin-react
 
 # Copiar código fuente
 COPY . .

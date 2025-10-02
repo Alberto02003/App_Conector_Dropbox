@@ -83,7 +83,7 @@ export const api = {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const response = await axios.post(`${API_URL}/upload-root`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -93,6 +93,21 @@ export const api = {
       return response.data;
     } catch (error) {
       console.error('Error uploading file to root:', error);
+      throw error;
+    }
+  },
+
+  createStructure: async (formData) => {
+    try {
+      const response = await axios.post(`${API_URL}/structure/create`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating structure:', error);
       throw error;
     }
   }

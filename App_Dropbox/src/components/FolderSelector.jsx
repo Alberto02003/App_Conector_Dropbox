@@ -90,9 +90,9 @@ const FolderSelector = ({ onFolderSelect, selectedFolder }) => {
             {folders.map((folder) => (
               <motion.div
                 key={folder.id}
-                whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.05)' }}
+                whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
                 className={`p-3 border-b last:border-b-0 cursor-pointer transition-colors ${
-                  selectedFolder === folder.path ? 'bg-primary/10' : ''
+                  selectedFolder === folder.path ? 'bg-primary/20' : ''
                 }`}
                 onClick={() => onFolderSelect(folder.path)}
               >

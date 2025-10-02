@@ -66,6 +66,11 @@ README.md
 .env.development
 .env.test
 
+# Archivos de sesión y datos sensibles
+sessions.json
+code_verifier.json
+*.session
+
 # Archivos de backup
 *.bak
 *.backup
